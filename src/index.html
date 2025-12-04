@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>My Server</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+        h1 { color: #2c3e50; }
+        .form-group { margin-bottom: 20px; padding: 15px; background: #f4f4f4; border-radius: 5px;}
+        input { padding: 8px; width: 70%; }
+        button { padding: 8px 15px; background: #27ae60; color: white; border: none; cursor: pointer; }
+        button:hover { background: #2ecc71; }
+        ul { list-style-type: none; padding: 0; }
+        li { background: #ecf0f1; margin: 5px 0; padding: 10px; border-left: 5px solid #3498db; }
+    </style>
+</head>
+<body>
+
+<h1>Users Database</h1>
+
+<div class="form-group">
+    <h3>Add new user:</h3>
+    <input type="text" id="nameInput" placeholder="Imię użytkownika">
+    <button onclick="addUser()">Save</button>
+</div>
+
+<h3>List in database:</h3>
+<ul id="userList">Loadnig...</ul>
+
+<script>
+
+    async function loadUsers() {
+        const response = await fetch('/get_users');
+        const data = await response.json();
+
+        const list = document.getElementById('userList');
+        list.innerHTML = '';
+
+        data.users.forEach(user => {
+            const li = document.createElement('li');
+            li.textContent = user.name;
+            list.appendChild(li);
+        });
+    }
+
+    async function addUser() {
+        const nameInput = document.getElementById('nameInput');
+        const name = nameInput.value;
+
+        if(!name) return alert("Input name");
+
+        await fetch('/add_user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name })
+        });
+
+        nameInput.value = '';
+        loadUsers();
+    }
+
+    loadUsers();
+</script>
+</body>
+</html>
